@@ -1,5 +1,4 @@
-#%%
-
+#import libraries
 import numpy as np
 import os
 import six.moves.urllib as urllib
@@ -17,43 +16,23 @@ from collections import defaultdict
 from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
-
-# This is needed since the notebook is stored in the object_detection folder.
-#sys.path.append("..")
-#from object_detection.utils import ops as utils_ops
-
-#if StrictVersion(tf.__version__) < StrictVersion('1.9.0'):
-#  raise ImportError('Please upgrade your TensorFlow installation to v1.9.* or later!')
-  
-#%%
-
-get_ipython().magic('matplotlib inline')
-
-sys.path.append("..")
-
-#%%
-
 from utils import label_map_util
-
 from utils import visualization_utils as vis_util
 
-#%%
-
-# What model to download.
+# model yang akan di download
 MODEL_NAME = 'ssd_mobilenet_v1_coco_11_06_2017'
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
-# Path to frozen detection graph. This is the actual model that is used for the object detection.
+# Path ke frozen detection graph. Ini adalah model yang sebenarnya digunakan untuk object detection
 PATH_TO_FROZEN_GRAPH = MODEL_NAME + '/frozen_inference_graph.pb'
 
-# List of the strings that is used to add correct label for each box.
+# List dari string yang digunakan untuk menambahkan label yang benar untuk tiap box
 PATH_TO_LABELS = os.path.join('C:/Tensorflow/models/research/object_detection/data', 'mscoco_label_map.pbtxt')
 
 NUM_CLASSES = 90
 
-#%%
-
+# Untuk download model jika belum ada dan mengekstraknya
 if not os.path.exists(MODEL_NAME + '/frozen_inference_graph.pb'):
 	#print ('Downloading the model')
 	opener = urllib.request.URLopener()
@@ -63,9 +42,7 @@ if not os.path.exists(MODEL_NAME + '/frozen_inference_graph.pb'):
 	  file_name = os.path.basename(file.name)
 	  if 'frozen_inference_graph.pb' in file_name:
 	    tar_file.extract(file, os.getcwd())
-    
-    
-#%%
+
     
 detection_graph = tf.Graph()
 with detection_graph.as_default():
@@ -92,14 +69,10 @@ def load_image_into_numpy_array(image):
   
 #%%
   
-# For the sake of simplicity we will use only 2 images:
-# image1.jpg
-# image2.jpg
-# If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
 PATH_TO_TEST_IMAGES_DIR = 'test_images'
 TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i)) for i in range(1, 3) ]
 
-# Size, in inches, of the output images.
+# Ukuran hasil gambar, dalam inches.
 IMAGE_SIZE = (12, 8)
 
 
@@ -119,26 +92,16 @@ with detection_graph.as_default():
     x = 0
     while(ret):
       ret,image_np = cap.read()  
-      ##for image_path in TEST_IMAGE_PATHS:
-      ##image = Image.open(image_path)
       
-      
-      # the array based representation of the image will be used later in order to prepare the
-      # result image with boxes and labels on it.
-      
-      ##image_np = load_image_into_numpy_array(image)
-      
-      # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
       image_np_expanded = np.expand_dims(image_np, axis=0)
       image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
-      # Each box represents a part of the image where a particular object was detected.
+
       boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
-      # Each score represent how level of confidence for each of the objects.
-      # Score is shown on the result image, together with the class label.
+
       scores = detection_graph.get_tensor_by_name('detection_scores:0')
       classes = detection_graph.get_tensor_by_name('detection_classes:0')
       num_detections = detection_graph.get_tensor_by_name('num_detections:0')
-      # Actual detection.
+
       (boxes, scores, classes, num_detections) = sess.run(
           [boxes, scores, classes, num_detections],
           feed_dict={image_tensor: image_np_expanded})
@@ -148,7 +111,7 @@ with detection_graph.as_default():
       if x == 10:
           win32api.Beep(100, 10)
           win32api.MessageBox(0, 'oi', 'title')
-      # Visualization of the results of a detection.
+
       vis_util.visualize_boxes_and_labels_on_image_array(
           image_np,
           np.squeeze(boxes),
@@ -157,8 +120,7 @@ with detection_graph.as_default():
           category_index,
           use_normalized_coordinates=True,
           line_thickness=8)
-#      plt.figure(figsize=IMAGE_SIZE)
-#      plt.imshow(image_np)
+
       
       cv2.imshow('image',cv2.resize(image_np,(1280,960)))
       if cv2.waitKey(25) & 0xFF == ord('q'):
