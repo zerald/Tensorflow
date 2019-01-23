@@ -77,7 +77,7 @@ IMAGE_SIZE = (12, 8)
 
 
 #%%
-  
+# mendapatkan kecepatan mobil
 connection = obd.OBD()
 
 cmd = obd.commands.SPEED
@@ -85,7 +85,7 @@ cmd = obd.commands.SPEED
 response = connection.query(cmd)
 
 if response.value.to('mph') >= 10:
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0) 
 with detection_graph.as_default():
   with tf.Session(graph=detection_graph) as sess:
     ret = True
@@ -105,12 +105,12 @@ with detection_graph.as_default():
       (boxes, scores, classes, num_detections) = sess.run(
           [boxes, scores, classes, num_detections],
           feed_dict={image_tensor: image_np_expanded})
-      
+# Class 1 adalah person dan Class 77 adalah cell phone
       if 1 and 77 in classes:
           x = x + 1
       if x == 10:
           win32api.Beep(100, 10)
-          win32api.MessageBox(0, 'oi', 'title')
+          win32api.MessageBox(0, 'Stop playing phone !', 'WARNING!!!')
 
       vis_util.visualize_boxes_and_labels_on_image_array(
           image_np,
